@@ -1,0 +1,38 @@
+/* ============================================================
+ * CAPA 7 · ONDA AL TOCAR / RIPPLE  (JHONNY ASISTENCIA) — decorativa ligera
+ *
+ * QUÉ HACE
+ *   Los estilos de la onda de tinta (tamaño, color y desvanecido). Dónde
+ *   nace la onda lo decide el JS de la pareja.
+ *
+ * CÓMO SE INSTALA  (una sola línea, en el <head>, DESPUÉS de style.css)
+ *   <link rel="stylesheet" href="capa-7-ripple.css" />
+ *
+ * PAREJA
+ *   capa-7-ripple.js  (las dos o ninguna).
+ *
+ * NOTAS
+ *   - Solo estilos para la onda; el JS decide dónde nace.
+ *   - Nada de reglas del tipo "X > *": romperían el layout de la app.
+ * ============================================================ */
+
+.na-rip-host { overflow: hidden; }
+
+.na-rip {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: scale(0);
+  opacity: .35;
+  background: currentColor;
+  animation: na-rip-go .55s cubic-bezier(.2,.7,.3,1) forwards;
+  z-index: 0;
+}
+
+@keyframes na-rip-go {
+  to { transform: scale(1); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .na-rip { display: none !important; }
+}

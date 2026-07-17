@@ -1,0 +1,51 @@
+/* ============================================================
+ * CAPA 4 · TRANSICIÓN LATERAL ENTRE PANTALLAS  (JHONNY ASISTENCIA)
+ * CSS de la pareja — funcional/decorativa
+ *
+ * QUÉ HACE
+ *   Los fotogramas del deslizamiento lateral: la pantalla nueva entra
+ *   desde la derecha al avanzar y desde la izquierda al ir atrás. Quién
+ *   dispara cada uno lo decide el JS de la pareja.
+ *
+ * CÓMO SE INSTALA  (una sola línea, en el <head>, DESPUÉS de style.css)
+ *   <link rel="stylesheet" href="capa-4-transicion.css" />
+ *
+ * PAREJA
+ *   capa-4-transicion.js  (las dos o ninguna: el CSS solo no hace nada,
+ *   el JS solo no anima).
+ *
+ * NOTAS
+ *   - Anima el contenedor #app entero, no cada tarjeta: la vista del
+ *     escáner monta un <video>, y animar un video en Android parpadea.
+ *   - Respeta "reducir movimiento".
+ * ============================================================ */
+
+/* Mientras la capa está viva, la app se marca así (la capa 1 lo lee para
+   no animar la aparición de pantalla dos veces). */
+html.na-tx #app { will-change: transform, opacity; }
+
+/* Entra desde la derecha (avanzar) */
+html.na-tx-anim #app.na-in {
+  animation: na-slide-in .28s cubic-bezier(.25,.9,.3,1) both;
+}
+@keyframes na-slide-in {
+  from { opacity: .3; transform: translate3d(22%, 0, 0); }
+  to   { opacity: 1;  transform: none; }
+}
+
+/* Entra desde la izquierda (atrás) */
+html.na-tx-anim #app.na-back {
+  animation: na-slide-back .28s cubic-bezier(.25,.9,.3,1) both;
+}
+@keyframes na-slide-back {
+  from { opacity: .3; transform: translate3d(-22%, 0, 0); }
+  to   { opacity: 1;  transform: none; }
+}
+
+/* Nada de barras horizontales mientras la pantalla se desliza. */
+html.na-tx-anim, html.na-tx-anim body { overflow-x: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.na-tx-anim #app.na-in,
+  html.na-tx-anim #app.na-back { animation: none !important; }
+}

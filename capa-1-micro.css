@@ -1,0 +1,100 @@
+/* ============================================================
+ * CAPA 1 · MICRO-EFECTOS BASE  (JHONNY ASISTENCIA) — funcional
+ *
+ * QUÉ HACE
+ *   Presión con resorte al tocar botones, el combo de zona y sus
+ *   opciones; entrada suave de la pantalla; "pop" de la hoja/modal con
+ *   una curva más viva; entrada escalonada de la tarjeta del evento y
+ *   de las primeras opciones de zona.
+ *
+ * CÓMO SE INSTALA  (una sola línea, en el <head>, DESPUÉS de style.css)
+ *   <link rel="stylesheet" href="capa-1-micro.css" />
+ *
+ * PAREJA
+ *   Ninguna: es autónoma. Convive con capa-4 (transición lateral): si la
+ *   capa 4 está puesta, marca <html class="na-tx"> y esta capa apaga su
+ *   propia aparición de pantalla para no animar dos veces.
+ *
+ * NOTAS
+ *   - Prefijo na- (los prefijos sc-/cf-/rg-/ev-/combo- son de la app).
+ *   - Respeta "reducir movimiento" del sistema.
+ *   - No toca el girador global (#ios-loader) ni el spinner de guardar.
+ * ============================================================ */
+
+/* ---------- Presión con resorte ---------- */
+.btn {
+  transition: transform .16s cubic-bezier(.2,.9,.3,1.4),
+              box-shadow .2s ease, background .2s ease !important;
+}
+.btn:active:not([disabled]) { transform: scale(.955) !important; }
+.btn[disabled]:active { transform: none !important; }
+
+.combo-btn {
+  transition: transform .16s cubic-bezier(.2,.9,.3,1.4),
+              border-color .15s ease, box-shadow .15s ease;
+}
+.combo-btn:active { transform: scale(.985); }
+
+.combo-item {
+  transition: transform .12s cubic-bezier(.2,.9,.3,1.4), background .15s ease;
+}
+.combo-item:active { transform: scale(.98); }
+
+.chk { transition: transform .12s cubic-bezier(.2,.9,.3,1.4); }
+.chk:active { transform: scale(.99); }
+
+/* El campo enfocado sube un pelo: se nota cuál estás llenando. */
+.input:focus, .select:focus { transform: translateY(-1px); }
+.input, .select { transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+
+/* ---------- Aparición de pantalla ---------- */
+/* Solo si NO está la capa 4 (que hace la suya, lateral). */
+html:not(.na-tx) #app > * { animation: na-view .26s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes na-view {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Entrada escalonada ---------- */
+.ev-card .ev-row { animation: na-up .3s cubic-bezier(.2,.8,.2,1) both; }
+.ev-card .ev-row:nth-child(1) { animation-delay: .04s; }
+.ev-card .ev-row:nth-child(2) { animation-delay: .09s; }
+.ev-card .ev-row:nth-child(3) { animation-delay: .14s; }
+
+.combo-list .combo-item:nth-child(-n+8) { animation: na-up .22s cubic-bezier(.2,.8,.2,1) both; }
+.combo-list .combo-item:nth-child(1) { animation-delay: .01s; }
+.combo-list .combo-item:nth-child(2) { animation-delay: .03s; }
+.combo-list .combo-item:nth-child(3) { animation-delay: .05s; }
+.combo-list .combo-item:nth-child(4) { animation-delay: .07s; }
+.combo-list .combo-item:nth-child(5) { animation-delay: .09s; }
+.combo-list .combo-item:nth-child(6) { animation-delay: .11s; }
+.combo-list .combo-item:nth-child(7) { animation-delay: .13s; }
+.combo-list .combo-item:nth-child(8) { animation-delay: .15s; }
+
+@keyframes na-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Hoja / modal con más vida ---------- */
+/* style.css ya la anima con `up .28s`; aquí solo cambiamos la curva. */
+.sheet { animation: na-sheet .3s cubic-bezier(.16,1.1,.3,1) !important; }
+@keyframes na-sheet {
+  from { transform: translateY(26px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.scrim { animation: na-fade .22s ease both; }
+@keyframes na-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- Reducir movimiento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html:not(.na-tx) #app > *,
+  .ev-card .ev-row,
+  .combo-list .combo-item,
+  .sheet, .scrim { animation: none !important; }
+  .btn, .combo-btn, .combo-item, .chk, .input, .select {
+    transition: none !important;
+  }
+  .btn:active:not([disabled]), .combo-btn:active, .combo-item:active,
+  .chk:active, .input:focus, .select:focus { transform: none !important; }
+}
