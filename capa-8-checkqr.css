@@ -1,0 +1,49 @@
+/* ============================================================
+ * CAPA 8 · CHECK Y MARCO VERDE SOBRE LA CÁMARA — estilos
+ * Pareja de capa-8-checkqr.js (los dos o ninguno).
+ * Pegar en index.html, en el <head>, después de style.css:
+ *   <link rel="stylesheet" href="capa-8-checkqr.css" />
+ * ============================================================ */
+
+/* Lienzo transparente encima del video: nunca recibe toques. */
+.cam-ov {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 2;
+}
+
+/* El check grande. La posición (left/top) la pone el JS sobre el
+   centro del QR leído; si no hay marco, va al centro de la caja. */
+.cam-chk {
+  position: absolute; left: 50%; top: 50%;
+  width: 96px; height: 96px; border-radius: 50%;
+  display: grid; place-content: center;
+  font-family: var(--font-display, inherit);
+  font-size: 50px; font-weight: 800; line-height: 1; color: #fff;
+  background: rgba(34, 197, 94, .93);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35), 0 0 0 6px rgba(255, 255, 255, .18);
+  transform: translate(-50%, -50%) scale(.4);
+  opacity: 0; pointer-events: none; z-index: 3;
+}
+.cam-chk.warn { background: rgba(245, 158, 11, .94); }
+.cam-chk.err  { background: rgba(239, 68, 68, .94); }
+
+.cam-chk.show { animation: chkPop .95s cubic-bezier(.2, .8, .2, 1) forwards; }
+.cam-chk.plano.show { animation: chkPlano .95s linear forwards; }
+
+@keyframes chkPop {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.4); }
+  16%  { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+  28%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  74%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes chkPlano {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+  10%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  80%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+
+@media (max-width: 380px) {
+  .cam-chk { width: 78px; height: 78px; font-size: 40px; }
+}
