@@ -1,0 +1,99 @@
+/* ============================================================
+ * LOTE · ESTILOS  (pareja de lote-lector.js)
+ * Solo pinta lo que el modo lote agrega: el interruptor de modo y la
+ * lista viva de lo que se va registrando. No pisa nada de style.css.
+ * Se quita borrando sus dos líneas del index.html.
+ * ============================================================ */
+
+/* ---- Interruptor uno a uno / lote ---- */
+.modo-sw {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+}
+.modo-sw button {
+  flex: 1 1 0;
+  border: 0;
+  cursor: pointer;
+  font: 700 13.5px/1.2 var(--font-body);
+  color: var(--muted);
+  background: transparent;
+  border-radius: 11px;
+  padding: 10px 8px;
+  transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+}
+.modo-sw button.on {
+  color: #fff;
+  background: var(--brand);
+  box-shadow: 0 4px 12px rgba(0, 86, 179, .28);
+}
+.modo-sw button:disabled { opacity: .45; cursor: default; }
+
+/* ---- Cinta de estado del lote ---- */
+.lote-cinta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 13px;
+  border-radius: var(--r-md);
+  background: var(--brand-050);
+  border: 1px solid #CFE2FF;
+  font: 600 13px/1.3 var(--font-body);
+  color: var(--brand-900);
+}
+.lote-cinta .lote-pend { color: var(--muted); font-weight: 700; }
+.lote-cinta.enviando { background: #FFF8E6; border-color: #FFE2A8; }
+
+/* ---- Lista viva ---- */
+.lote-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 42vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.lote-it {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--line);
+  border-radius: var(--r-sm);
+  box-shadow: var(--sh-1);
+  animation: loteEntra .22s ease both;
+}
+@keyframes loteEntra { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .lote-it { animation: none; } }
+
+.lote-it .lote-ico { font-size: 16px; line-height: 1; width: 20px; text-align: center; }
+.lote-it .lote-txt { min-width: 0; flex: 1 1 auto; }
+.lote-it .lote-n {
+  font: 700 13.5px/1.25 var(--font-body);
+  color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.lote-it .lote-s {
+  font: 500 11.5px/1.3 var(--font-body);
+  color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.lote-it.esperando { border-left-color: #B9C6D9; }
+.lote-it.ok        { border-left-color: var(--ok);     background: #F2FBF7; }
+.lote-it.ya        { border-left-color: var(--warn);   background: #FFFAF0; }
+.lote-it.malo      { border-left-color: var(--danger); background: #FEF4F5; }
+
+.lote-vacia {
+  padding: 16px 12px;
+  text-align: center;
+  font: 500 12.5px/1.4 var(--font-body);
+  color: var(--muted);
+}
