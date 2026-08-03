@@ -1,0 +1,89 @@
+/* ============================================================================
+ * CAPA 13 · VIEW TRANSITIONS + CURVAS DE RESORTE — app ASISTENCIAS (escáner de kiosco)   ·   02/08/2026
+ * ----------------------------------------------------------------------------
+ * QUÉ HACE
+ *   Pone las curvas y los tiempos de las transiciones que dispara la pareja
+ *   JS: el deslizamiento lateral de pantalla, el crecimiento de la tarjeta
+ *   hasta la hoja de detalle.
+ *
+ * INSTALACIÓN (una sola línea, en el <head>, DESPUÉS de capa-1-micro.css)
+ *   <link rel="stylesheet" href="capa-13-vt.css" />
+ *
+ * PAREJA
+ *   capa-13-vt.js  (obligatoria: sin ella este CSS no hace nada)
+ *
+ * NOTAS
+ *   · Nada de esto se aplica si el navegador no conoce View Transitions.
+ *   · Se apaga entero con "reducir movimiento".
+ * ========================================================================== */
+
+/* ---- CURVAS ---------------------------------------------------------------
+   --jvt-ios      = la curva de deslizamiento de iOS (la que ya usaba la capa 4)
+   --jvt-resorte  = resorte de verdad (rebote corto al final), como Flutter.
+                    Con linear() donde exista; si no, la cúbica más parecida. */
+:root {
+  --jvt-ios:     cubic-bezier(.32, .72, 0, 1);
+  --jvt-resorte: cubic-bezier(.22, 1.15, .34, 1);
+}
+@supports (animation-timing-function: linear(0, 1)) {
+  :root {
+    --jvt-resorte: linear(0, 0.006, 0.025 2.8%, 0.101 6.1%, 0.539 18.9%,
+      0.721 25.3%, 0.849 31.5%, 0.937 38.1%, 0.968 41.8%, 0.991 45.7%,
+      1.006 50.1%, 1.015 55%, 1.017 63.9%, 1.001);
+  }
+}
+
+/* ---- 1 · NAVEGACIÓN ENTRE PANTALLAS --------------------------------------- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: .30s;
+  animation-timing-function: var(--jvt-ios);
+}
+
+html.jvt-fwd::view-transition-old(root)  { animation-name: jvt-sale-izq; }
+html.jvt-fwd::view-transition-new(root)  { animation-name: jvt-entra-der; }
+html.jvt-back::view-transition-old(root) { animation-name: jvt-sale-der; }
+html.jvt-back::view-transition-new(root) { animation-name: jvt-entra-izq; }
+
+@keyframes jvt-entra-der { from { transform: translateX(22%);  opacity: .35; } }
+@keyframes jvt-entra-izq { from { transform: translateX(-22%); opacity: .35; } }
+@keyframes jvt-sale-izq  { to   { transform: translateX(-14%); opacity: 0; } }
+@keyframes jvt-sale-der  { to   { transform: translateX(14%);  opacity: 0; } }
+
+/* Mientras cruza una pantalla, la entrada escalonada de la capa 1 espera su
+   turno: si no, la lista viaja con las tarjetas todavía invisibles. Al
+   terminar la transición se suelta y las tarjetas caen en cascada, ya en su
+   sitio. */
+html.jvt-fwd  #app :is(.ev-row, .ev-card),
+html.jvt-back #app :is(.ev-row, .ev-card) { animation: none !important; }
+
+/* ---- 2 · ELEMENTO COMPARTIDO: la tarjeta se convierte en la hoja ---------- */
+::view-transition-group(jvt-heroe) {
+  animation-duration: .42s;
+  animation-timing-function: var(--jvt-resorte);
+}
+::view-transition-old(jvt-heroe),
+::view-transition-new(jvt-heroe) {
+  height: 100%;
+  overflow: clip;
+  object-fit: cover;               /* sin esto la tarjeta se estira al crecer */
+}
+::view-transition-old(jvt-heroe) { animation: jvt-esfuma .16s linear both; }
+::view-transition-new(jvt-heroe) { animation: jvt-aparece .30s .06s linear both; }
+
+@keyframes jvt-esfuma  { to   { opacity: 0; } }
+@keyframes jvt-aparece { from { opacity: 0; } }
+
+/* La capa 1 sube la hoja con su propia animación y "!important". Cuando la
+   hoja llega volando desde una tarjeta esa subida sobra (serían dos
+   movimientos seguidos), así que la capa 13 le pone .jvt-sin-subida.
+   Las hojas que NO vienen de una tarjeta siguen subiendo como siempre. */
+.jvt-sin-subida        { animation: none !important; }
+html.jvt-anim .sheet   { animation: none !important; }
+
+/* ---- 4 · RESPETO POR "REDUCIR MOVIMIENTO" --------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}
