@@ -62,15 +62,19 @@ function vibrar(patron) { try { if (navigator.vibrate) navigator.vibrate(patron)
 let _apiActivas = 0;
 function loaderOn() { _apiActivas++; const b = $('#ios-loader'); if (b) b.classList.add('active'); }
 function loaderOff() { _apiActivas = Math.max(0, _apiActivas - 1); if (_apiActivas === 0) { const b = $('#ios-loader'); if (b) b.classList.remove('active'); } }
+/* 12/10/2026 · Fase 1: el viaje lo hace red.js (pieza común del ecosistema):
+   rid en escrituras, corte al cambiar de vista, cola de fondo, reintento
+   seguro (solo red caída o eco de Google, y en escrituras solo con el mismo
+   rid) y versión del backend. Una lectura cortada no resuelve nunca: el
+   código de la vista vieja simplemente no sigue. */
 async function api(action, params = {}, opts = {}) {
-  const qs = new URLSearchParams(Object.assign({ action }, params)).toString();
   if (!opts.silencio) loaderOn();
-  try {
-    const res = await fetch(`${API_URL}?${qs}`, { method: 'GET' });
-    const json = await res.json();
-    if (!json.ok) throw new Error(json.error || 'Error del servidor');
-    return json.data;
-  } finally { if (!opts.silencio) loaderOff(); }
+  let json;
+  try { json = await RED.pedir(API_URL, action, params, { fondo: !!opts.silencio && RED.esLectura(action) }); }
+  catch (e) { if (!opts.silencio) loaderOff(); if (e && e.cortado) return new Promise(() => {}); throw e; }
+  if (!opts.silencio) loaderOff();
+  if (!json.ok) throw new Error(json.error || 'Error del servidor');
+  return json.data;
 }
 
 /* ============================================================
@@ -192,6 +196,7 @@ function closeLayer() {
 function go(route) { location.hash = '#/' + route; }
 window.addEventListener('hashchange', render);
 function render() {
+  RED.nuevaVista();   /* 12/10/2026 · corta lecturas de la vista que se va */
   const full = location.hash.replace(/^#\//, '');
   const route = (full || '').split('?')[0];
   if (route !== 'escaner') scanStop(); // salir de la vista apaga la cámara
@@ -432,6 +437,8 @@ function resultado(kind, titulo, sub) {
 const SCAN = { on: false, stream: null, det: null, raf: null, busy: false, total: 0, vistos: new Map(), geo: null,
   /* LOTE 22/07: varios QR en el mismo fotograma */
   lote: false, detLote: null, geos: null, cola: null, enviando: false, ultEnvio: 0, lista: [] };
+/* 12/10/2026 · red.js no recarga por versión nueva con el escáner encendido */
+window.RED_NO_RECARGAR = () => SCAN.on;
 const COOLDOWN_MS = 5000;  // el mismo QR delante de la cámara no se relee en 5 s
 const NO_HAY = 'NO_HAY';
 /* Lote: cuántos IDs viajan juntos, cada cuánto se manda la tanda y
