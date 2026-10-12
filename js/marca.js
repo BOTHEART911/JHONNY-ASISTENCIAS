@@ -56,7 +56,12 @@
        (favicon, apple-touch-icon y splash) y en manifest.json —
        eso hay que cambiarlo aparte, ver el checklist. */
     APP_ICON:   'https://botheart911.github.io/IMAGENES-JHONNY/marca/logo.png',
-    APP_BANNER: 'https://botheart911.github.io/IMAGENES-JHONNY/marca/banner.png'
+    APP_BANNER: 'https://botheart911.github.io/IMAGENES-JHONNY/marca/banner.png',
+
+    /* Realtime Database de la campaña (Firebase). El escáner lee de aquí el
+       total EN VIVO (solo lectura: lo escribe el CORE). Al replicar: la URL
+       del RTDB de la campaña nueva (la misma de MARCA_FB_RTDB en CONFIG). */
+    FB_RTDB: 'https://jhonny-perdomo-default-rtdb.firebaseio.com'
   };
 
 })(typeof self !== 'undefined' ? self : this);

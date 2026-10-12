@@ -19,6 +19,8 @@
  *  · Versión del backend: cada respuesta trae v; si cambia, la app se
  *    recarga sola (sin guardados en vuelo y una sola vez por versión).
  *  · Medición de pantalla: ms de cada llamada y KB, en memoria (RED.medidas()).
+ *  · 12/10/2026 · Fase 3: quien guarda su propia cola (el escáner) puede pasar
+ *    {rid} fijo (se conserva en cada reintento), {reintentos} y {tiempo}.
  * ============================================================================ */
 (function (raiz) {
   'use strict';
@@ -123,7 +125,7 @@
       var ctrl = new AbortController();
       if (op.ent) op.ent.ctrl = ctrl;
       try {
-        var json = await unIntento(url, { ctrl: ctrl, fetchInit: op.fetchInit }, lectura ? T_LECTURA : T_ESCRITURA);
+        var json = await unIntento(url, { ctrl: ctrl, fetchInit: op.fetchInit }, op.tiempo || (lectura ? T_LECTURA : T_ESCRITURA));
         medidas.push({ a: op.accion, ms: Math.round(ahora() - t0), kb: Math.round((json.__kb || 0) * 10) / 10, n: intento + 1, t: Date.now() });
         if (medidas.length > 300) medidas.shift();
         vigilarVersion(json.v);
@@ -132,7 +134,8 @@
         ultimo = err;
         if (err.cortado) throw err;
         /* Escritura: reintentar solo si el CORE ya deduplica por rid. */
-        var puede = esReintentable(err) && intento < ESPERAS.length && (lectura || (coreConRid && op.rid));
+        var maxR = (op.reintentos != null) ? op.reintentos : ESPERAS.length;
+        var puede = esReintentable(err) && intento < maxR && (lectura || ((coreConRid || op.ridDado) && op.rid));
         if (!puede) throw err;
         await dormir(ESPERAS[intento]);
         intento++;
@@ -164,7 +167,7 @@
     var metodo = op.metodo || 'GET';
     if (ses.tk) { if (metodo === 'POST' && cuerpo) cuerpo.tk = ses.tk; else q.tk = ses.tk; }
     var rid = '';
-    if (!lectura) { rid = nuevoRid(); if (metodo === 'POST' && cuerpo) cuerpo.rid = rid; else q.rid = rid; }
+    if (!lectura) { rid = op.rid || nuevoRid(); if (metodo === 'POST' && cuerpo) cuerpo.rid = rid; else q.rid = rid; }
     var url = base + '?' + new URLSearchParams(q).toString();
     var fetchInit = { method: metodo };
     if (metodo === 'POST') { fetchInit.headers = { 'Content-Type': 'text/plain;charset=utf-8' }; fetchInit.body = JSON.stringify(cuerpo || {}); }
@@ -175,7 +178,7 @@
     if (lectura && vuelo[clave]) { vuelo[clave].gen = gen; return vuelo[clave].prom.then(revisarSesion); }
 
     var ent = { gen: gen, ctrl: null, lectura: lectura };
-    var opInt = { accion: accion, lectura: lectura, rid: rid, fetchInit: fetchInit, ent: ent };
+    var opInt = { accion: accion, lectura: lectura, rid: rid, fetchInit: fetchInit, ent: ent, ridDado: !!op.rid, reintentos: op.reintentos, tiempo: op.tiempo };
     var correr = function () { return ejecutar(url, opInt); };
 
     var prom;

@@ -27,7 +27,9 @@
 (function () {
   'use strict';
 
-  var ZBAR_CDN = 'https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.11.0/dist/inlined/index.js';
+  /* 12/10/2026 · Fase 3: servido por la misma app (antes del CDN jsdelivr), así
+     el service worker lo guarda y el modo en bloque funciona sin señal. */
+  var ZBAR_CDN = 'js/vendor/zbar.js';
   var MAX_LADO = 1920;          // tope del cuadro que se le pasa a zbar
   var _cargando = null;
   var _scanner = null;
